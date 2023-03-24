@@ -9,3 +9,13 @@ function print_help() {
 
     console.log(myString);
 }
+
+function handle_cli() {
+    const args = Deno.args;
+    if (args.length < 1) {
+        print_help();
+        Deno.exit(1);
+    }
+}
+
+handle_cli();
