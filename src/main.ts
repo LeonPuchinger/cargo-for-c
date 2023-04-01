@@ -21,15 +21,17 @@ function print_help() {
 function init_cargo_dir(init_dir = "") {
     const cwd = Deno.cwd();
     init_dir = join(cwd, init_dir);
+    const cargo_dir = join(init_dir, ".cargo-for-c");
     try {
         Deno.mkdirSync(
-            join(init_dir, ".cargo-for-c/include"),
+            join(cargo_dir, "include"),
             {recursive: true},
         );
+        Deno.mkdirSync(join(init_dir, "target"));
         Deno.mkdirSync(join(init_dir, "src"));
         Deno.symlinkSync(
             join(init_dir, "src"),
-            join(init_dir, ".cargo-for-c/include/crate-root"),
+            join(cargo_dir, "include/crate-root"),
             {type: "dir"},
         );
     } catch (error) {
@@ -81,7 +83,7 @@ function build_project() {
         "cc",
         `-I${join(cwd, ".cargo-for-c/include")}`,
         "-o",
-        "output",
+        "target/output",
         "src/main.c",
     ]});
 }
