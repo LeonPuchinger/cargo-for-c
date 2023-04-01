@@ -6,7 +6,8 @@ function print_help() {
     run: cargo-for-c <command> [options]
 
     commands:
-    - TBD
+    - init: create new cargo instance in the CWD
+    - new <name>: create new cargo instance in the dir called <name>
 `;
 
     console.log(myString);
