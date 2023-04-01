@@ -56,6 +56,18 @@ function new_cargo_dir(new_dir_name: string) {
 }
 
 /**
+ * Checks whether the CWD is a cargo-for-c instance
+ */
+function is_cargo_instance(): boolean {
+    const cwd = Deno.cwd();
+    for (const dirEntry of Deno.readDirSync(cwd)) {
+        if (dirEntry.isDirectory && dirEntry.name == ".cargo-for-c") {
+            return true;
+        }
+    }
+    return false;
+}
+/**
  * Handle command line parameters and trigger the appropriate functions
  */
 function handle_cli() {
