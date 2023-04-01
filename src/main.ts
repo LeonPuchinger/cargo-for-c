@@ -71,13 +71,20 @@ function is_cargo_instance(): boolean {
 }
 
 /**
- * Build executable from cargo project in CWD
+ * Panics if the CWD is not a cargo-for-c instance
  */
-function build_project() {
+function assert_is_cargo_instance() {
     if (!is_cargo_instance()) {
         console.log("ERROR: could not find cargo environment in current working directory");
         Deno.exit(1);
     }
+}
+
+/**
+ * Build executable from cargo project in CWD
+ */
+function build_project() {
+    assert_is_cargo_instance();
     const cwd = Deno.cwd();
     Deno.run({cmd: [
         "cc",
