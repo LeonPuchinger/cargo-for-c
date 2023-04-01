@@ -67,6 +67,25 @@ function is_cargo_instance(): boolean {
     }
     return false;
 }
+
+/**
+ * Build executable from cargo project in CWD
+ */
+function build_project() {
+    if (!is_cargo_instance()) {
+        console.log("ERROR: could not find cargo environment in current working directory");
+        Deno.exit(1);
+    }
+    const cwd = Deno.cwd();
+    Deno.run({cmd: [
+        "cc",
+        `-I${join(cwd, ".cargo-for-c/include")}`,
+        "-o",
+        "output",
+        "src/main.c",
+    ]});
+}
+
 /**
  * Handle command line parameters and trigger the appropriate functions
  */
@@ -84,6 +103,8 @@ function handle_cli() {
                 break;
             }
             return new_cargo_dir(args[1]);
+        case "build":
+            return build_project();
     }
     print_help();
 }
