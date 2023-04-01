@@ -8,6 +8,7 @@ function print_help() {
     commands:
     - init: create new cargo instance in the CWD
     - new <name>: create new cargo instance in the dir called <name>
+    - build: create executable from project in target/
 `;
 
     console.log(myString);
