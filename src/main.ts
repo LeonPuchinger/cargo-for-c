@@ -84,15 +84,19 @@ function assert_is_cargo_instance() {
 /**
  * Build executable from cargo project in CWD
  */
-function build_project() {
+function build_project(debug = true) {
     assert_is_cargo_instance();
     const cwd = Deno.cwd();
+    const out_dir = `target/${debug ? "debug" : "release"}`;
+    Deno.mkdirSync(out_dir, {recursive: true});
+    const project_name = "output";
     Deno.run({cmd: [
         "cc",
         `-I${join(cwd, ".cargo-for-c/include")}`,
         "-o",
-        "target/output",
+        join(out_dir, project_name),
         "src/main.c",
+        debug ? "-g" : "",
     ]});
 }
 
