@@ -9,6 +9,8 @@ function print_help() {
     - init: create new cargo instance in the CWD
     - new <name>: create new cargo instance in the dir called <name>
     - build: create executable from project in target/
+        options:
+        -r, --release: build a release instead of a debug executable (default)
 `;
 
     console.log(myString);
@@ -117,8 +119,10 @@ function handle_cli() {
                 break;
             }
             return new_cargo_dir(args[1]);
-        case "build":
-            return build_project();
+        case "build": {
+            const release = args[1] in ["-r", "--release"];
+            return build_project(!release);
+        }
     }
     print_help();
 }
