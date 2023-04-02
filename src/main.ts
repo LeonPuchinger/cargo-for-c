@@ -1,4 +1,4 @@
-import { join } from "https://deno.land/std/path/mod.ts";
+import { basename, dirname, join } from "https://deno.land/std/path/mod.ts";
 
 function print_help() {
   const myString = `
@@ -84,6 +84,15 @@ function assert_is_cargo_instance() {
 }
 
 /**
+ * Return the name of the cargo instance at the CWD
+ */
+function get_project_name() {
+    assert_is_cargo_instance();
+    const cwd = Deno.cwd();
+    return basename(dirname(cwd));
+}
+
+/**
  * Build executable from cargo project in CWD
  */
 function build_project(debug = true) {
@@ -91,7 +100,7 @@ function build_project(debug = true) {
     const cwd = Deno.cwd();
     const out_dir = `target/${debug ? "debug" : "release"}`;
     Deno.mkdirSync(out_dir, {recursive: true});
-    const project_name = "output";
+    const project_name = get_project_name();
     Deno.run({cmd: [
         "cc",
         `-I${join(cwd, ".cargo-for-c/include")}`,
