@@ -32,6 +32,7 @@ function init_cargo_dir(init_dir = "") {
         );
         Deno.mkdirSync(join(init_dir, "target"));
         Deno.mkdirSync(join(init_dir, "src"));
+        Deno.writeTextFileSync(join(init_dir, "src", "main.c"), "int main() {\n}");
         Deno.symlinkSync(
             join(init_dir, "src"),
             join(cargo_dir, "include/crate-root"),
