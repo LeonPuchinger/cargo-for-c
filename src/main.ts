@@ -102,14 +102,17 @@ function build_project(debug = true) {
     const out_dir = `target/${debug ? "debug" : "release"}`;
     Deno.mkdirSync(out_dir, {recursive: true});
     const project_name = get_project_name();
-    Deno.run({cmd: [
+    const cmd = [
         "cc",
         `-I${join(cwd, ".cargo-for-c/include")}`,
         "-o",
         join(out_dir, project_name),
         "src/main.c",
-        debug ? "-g" : "",
-    ]});
+    ];
+    if (debug) {
+        cmd.push("-g");
+    }
+    Deno.run({cmd: cmd});
 }
 
 /**
@@ -130,7 +133,7 @@ function handle_cli() {
             }
             return new_cargo_dir(args[1]);
         case "build": {
-            const release = args[1] in ["-r", "--release"];
+            const release = ["-r", "--release"].includes(args[1]);
             return build_project(!release);
         }
     }
