@@ -1,4 +1,4 @@
-import { join } from "https://deno.land/std/path/mod.ts";
+import { basename, join } from "https://deno.land/std/path/mod.ts";
 
 function print_help() {
   const myString = `
@@ -8,6 +8,9 @@ function print_help() {
     commands:
     - init: create new cargo instance in the CWD
     - new <name>: create new cargo instance in the dir called <name>
+    - build: create executable from project in target/
+        options:
+        -r, --release: build a release instead of a debug executable (default)
 `;
 
     console.log(myString);
@@ -21,15 +24,18 @@ function print_help() {
 function init_cargo_dir(init_dir = "") {
     const cwd = Deno.cwd();
     init_dir = join(cwd, init_dir);
+    const cargo_dir = join(init_dir, ".cargo-for-c");
     try {
         Deno.mkdirSync(
-            join(init_dir, ".cargo-for-c/include"),
+            join(cargo_dir, "include"),
             {recursive: true},
         );
+        Deno.mkdirSync(join(init_dir, "target"));
         Deno.mkdirSync(join(init_dir, "src"));
+        Deno.writeTextFileSync(join(init_dir, "src", "main.c"), "int main() {\n}");
         Deno.symlinkSync(
             join(init_dir, "src"),
-            join(init_dir, ".cargo-for-c/include/crate-root"),
+            join(cargo_dir, "include/crate-root"),
             {type: "dir"},
         );
     } catch (error) {
@@ -56,6 +62,60 @@ function new_cargo_dir(new_dir_name: string) {
 }
 
 /**
+ * Checks whether the CWD is a cargo-for-c instance
+ */
+function is_cargo_instance(): boolean {
+    const cwd = Deno.cwd();
+    for (const dirEntry of Deno.readDirSync(cwd)) {
+        if (dirEntry.isDirectory && dirEntry.name == ".cargo-for-c") {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Panics if the CWD is not a cargo-for-c instance
+ */
+function assert_is_cargo_instance() {
+    if (!is_cargo_instance()) {
+        console.log("ERROR: could not find cargo environment in current working directory");
+        Deno.exit(1);
+    }
+}
+
+/**
+ * Return the name of the cargo instance at the CWD
+ */
+function get_project_name() {
+    assert_is_cargo_instance();
+    const cwd = Deno.cwd();
+    return basename(cwd);
+}
+
+/**
+ * Build executable from cargo project in CWD
+ */
+function build_project(debug = true) {
+    assert_is_cargo_instance();
+    const cwd = Deno.cwd();
+    const out_dir = `target/${debug ? "debug" : "release"}`;
+    Deno.mkdirSync(out_dir, {recursive: true});
+    const project_name = get_project_name();
+    const cmd = [
+        "cc",
+        `-I${join(cwd, ".cargo-for-c/include")}`,
+        "-o",
+        join(out_dir, project_name),
+        "src/main.c",
+    ];
+    if (debug) {
+        cmd.push("-g");
+    }
+    Deno.run({cmd: cmd});
+}
+
+/**
  * Handle command line parameters and trigger the appropriate functions
  */
 function handle_cli() {
@@ -72,6 +132,10 @@ function handle_cli() {
                 break;
             }
             return new_cargo_dir(args[1]);
+        case "build": {
+            const release = ["-r", "--release"].includes(args[1]);
+            return build_project(!release);
+        }
     }
     print_help();
 }
