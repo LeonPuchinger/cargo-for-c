@@ -1,4 +1,4 @@
-import { basename, dirname, join } from "https://deno.land/std/path/mod.ts";
+import { basename, join } from "https://deno.land/std/path/mod.ts";
 
 function print_help() {
   const myString = `
@@ -90,7 +90,7 @@ function assert_is_cargo_instance() {
 function get_project_name() {
     assert_is_cargo_instance();
     const cwd = Deno.cwd();
-    return basename(dirname(cwd));
+    return basename(cwd);
 }
 
 /**
