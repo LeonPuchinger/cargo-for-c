@@ -27,3 +27,24 @@ mkdir my_project
 cd my_project
 cargo-for-c init
 ```
+
+### Build the Project
+
+The project can be built from its top-level directory using the `build` command:
+
+```
+cd my_project
+cargo-for-c build
+```
+
+This will create an executable from the project in the `my_project/target/debug` directory.
+The executable will have the same name as the containing project directory.
+
+By default, the binary will be built with debugging enabled.
+To create a release version, pass the `--release` (or `-r`) flag.
+
+```
+cargo-for-c build --release
+```
+
+In this case, the binary can be found in `my_project/target/release`.
