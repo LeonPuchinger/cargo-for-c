@@ -48,3 +48,25 @@ cargo-for-c build --release
 ```
 
 In this case, the binary can be found in `my_project/target/release`.
+
+### Importing modules
+
+Code is structured into modules and crates.
+Crates can contain multiple modules which are just c or header files.
+When working on the project, modules are imported relative to the create root.
+
+```
+#include "crate/map/hashmap.h"
+
+int main() {
+    //...
+}
+```
+
+```
+.
+├── src
+│   ├── main.c
+│   └── map
+│       └── hashmap.h
+```
