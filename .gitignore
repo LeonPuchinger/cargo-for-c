@@ -1,3 +1,4 @@
 .vscode/
 .idea/
 .cargo-for-c/
+bin/
