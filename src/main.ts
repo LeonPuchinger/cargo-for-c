@@ -163,15 +163,24 @@ async function fetch_dependencies(dependencies: string[]) {
     assert_is_cargo_instance();
     const cwd = Deno.cwd();
     for (const dependency of dependencies) {
-        console.log(`fetching ${dependency} ...`);
         // ignore the protocol in the URL of the dependency
-        const dependency_path = dependency.replace(/^\w+:\/\//, "");
+        const dependency_name = dependency.replace(/^\w+:\/\//, "");
+        const dependency_path = join(cwd, ".cargo-for-c", "include", dependency_name);
+        try {
+            Deno.statSync(dependency_path);
+            continue;
+        } catch (error) {
+            if (!(error instanceof Deno.errors.NotFound)) {
+                throw error;
+            }
+        }
+        console.log(`fetching ${dependency} ...`);
         const git_process = Deno.run({
             cmd: [
                 "git",
                 "clone",
                 dependency,
-                join(cwd, ".cargo-for-c", "include", dependency_path),
+                dependency_path,
             ],
             stderr: "piped",
         });
