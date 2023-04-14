@@ -33,6 +33,7 @@ function init_cargo_dir(init_dir = "") {
         Deno.mkdirSync(join(init_dir, "target"));
         Deno.mkdirSync(join(init_dir, "src"));
         Deno.writeTextFileSync(join(init_dir, "src", "main.c"), "int main() {\n}");
+        Deno.writeTextFileSync(join(init_dir, "cargo.toml"), "[dependencies]\n");
         Deno.symlinkSync(
             join(init_dir, "src"),
             join(cargo_dir, "include/crate-root"),
@@ -115,6 +116,39 @@ function build_project(debug = true) {
     Deno.run({cmd: cmd});
 }
 
+function resolve_dependencies(): string[] {
+    assert_is_cargo_instance();
+    const cwd = Deno.cwd();
+    let cargo_file_contents = "";
+    try {
+        cargo_file_contents = Deno.readTextFileSync(join(cwd, "cargo.toml"));
+    } catch (error) {
+        if (error != Deno.errors.NotFound) {
+            throw error;
+        }
+        console.log("Could not fetch dependencies: no cargo.toml found");
+        Deno.exit(1);
+    }
+    if (cargo_file_contents.startsWith("[dependencies]")) {
+        cargo_file_contents = cargo_file_contents.replace("[dependencies]", "");
+    } else {
+        console.log("Could not fetch dependencies: no [dependencies] section found in cargo.toml");
+        Deno.exit(1);
+    }
+    const dependencies: string[] = [];
+    const dependency_line = /(\s*\n\s*(\S+))/g;
+    let dependency_match;
+    while ((dependency_match = dependency_line.exec(cargo_file_contents)) !== null) {
+        // successful match has three capture groups
+        if (dependency_match.length != 3) {
+            console.log('Error resolving dependency, skipping');
+            continue;
+        } 
+        dependencies.push(dependency_match[2]);
+    }
+    return dependencies;
+}
+
 /**
  * Handle command line parameters and trigger the appropriate functions
  */
@@ -135,6 +169,9 @@ function handle_cli() {
         case "build": {
             const release = ["-r", "--release"].includes(args[1]);
             return build_project(!release);
+        }
+        case "fetch": {
+            const dependencies = resolve_dependencies();
         }
     }
     print_help();
