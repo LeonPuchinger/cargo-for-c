@@ -77,7 +77,7 @@ Add a Git URL to the `cargo.toml` file to add a dependency.
 
 ```
 [dependencies]
-https://github.com:vurtun/lib.git
+https://github.com/vurtun/lib.git
 ```
 
 Run `cargo-for-c fetch` to pull the dependencies
