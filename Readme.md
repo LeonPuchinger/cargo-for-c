@@ -12,6 +12,9 @@ deno compile --allow-read --allow-write --allow-run --output bin/cargo-for-c src
 
 ## Usage
 
+Note: `git` is required for most operations.
+A c compiler needs to be available via `cc`.
+
 ### Create a Project
 
 To create a new project with cargo-for-c, use the `new` command:
