@@ -56,7 +56,7 @@ Crates can contain multiple modules which are just c or header files.
 When working on the project, modules are imported relative to the create root.
 
 ```
-#include "crate/map/hashmap.h"
+#include "crate-root/map/hashmap.h"
 
 int main() {
     //...
@@ -81,3 +81,9 @@ https://github.com/vurtun/lib.git
 ```
 
 Run `cargo-for-c fetch` to pull the dependencies
+
+Dependencies can now be included via their path, e.g.:
+
+```
+#include "github.com/vurtun/lib.git/json.h"
+```
