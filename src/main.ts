@@ -1,19 +1,21 @@
 import { basename, join } from "https://deno.land/std/path/mod.ts";
 
 function print_help() {
-  const myString = `
+  const help_message = `
     cargo-for-c help:
     run: cargo-for-c <command> [options]
 
     commands:
+    - help: display this message
     - init: create new cargo instance in the CWD
     - new <name>: create new cargo instance in the dir called <name>
     - build: create executable from project in target/
         options:
         -r, --release: build a release instead of a debug executable (default)
+    - fetch: pull dependencies specified in cargo.toml
 `;
 
-    console.log(myString);
+    console.log(help_message);
 }
 
 /**
