@@ -1,6 +1,8 @@
 # Cargo for C
 
 A small module/crate system inspired by [cargo](https://github.com/rust-lang/cargo), but for c instead of rust.
+I liked the idea and wanted to try out Deno, so see this as more a half-baked concept.
+This is not meant for use in production.
 
 ## Build
 
@@ -93,3 +95,12 @@ Dependencies can now be included via their path, e.g.:
 To enable IntelliSense, the include path needs to be updated in the IDE/Language Plugin settings.
 For instance, in VSCode, open "C/C++: Edit Configurations (UI)" from the command palette.
 In the include path settings, add the following line: `${workspaceFolder}/.cargo-for-c/include`.
+
+## Limitations
+
+- Can only be used with header libraries
+- No dynamic linking
+- I have only tested this on *nix systems
+- Dependencies can only be obtained if they are hosted via git
+- Dependencies can not be versioned yet
+- Include guards are still required, cargo does not inject them (yet)
