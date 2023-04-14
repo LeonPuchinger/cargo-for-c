@@ -87,3 +87,9 @@ Dependencies can now be included via their path, e.g.:
 ```
 #include "github.com/vurtun/lib.git/json.h"
 ```
+
+### Adding IDE support
+
+To enable IntelliSense, the include path needs to be updated in the IDE/Language Plugin settings.
+For instance, in VSCode, open "C/C++: Edit Configurations (UI)" from the command palette.
+In the include path settings, add the following line: `${workspaceFolder}/.cargo-for-c/include`.
