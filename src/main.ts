@@ -116,6 +116,11 @@ function build_project(debug = true) {
     Deno.run({cmd: cmd});
 }
 
+/**
+ * Query list of dependencies from the cargo.toml file
+ * 
+ * @returns list of names/URLs of the dependencies
+ */
 function resolve_dependencies(): string[] {
     assert_is_cargo_instance();
     const cwd = Deno.cwd();
@@ -150,9 +155,42 @@ function resolve_dependencies(): string[] {
 }
 
 /**
+ * Actually pull the dependencies from their respective remotes
+ * 
+ * @param dependencies a list of dependency URLs
+ */
+async function fetch_dependencies(dependencies: string[]) {
+    assert_is_cargo_instance();
+    const cwd = Deno.cwd();
+    for (const dependency of dependencies) {
+        console.log(`fetching ${dependency} ...`);
+        // ignore the protocol in the URL of the dependency
+        const dependency_path = dependency.replace(/^\w+:\/\//, "");
+        const git_process = Deno.run({
+            cmd: [
+                "git",
+                "clone",
+                dependency,
+                join(cwd, ".cargo-for-c", "include", dependency_path),
+            ],
+            stderr: "piped",
+        });
+        const git_status = await git_process.status();
+        if (!git_status.success) {
+            console.log(`Error while trying to fetch ${dependency}, skipping...`);
+            console.log(`The git process returned with exit code ${git_status.code}`);
+            const stderr_output = (new TextDecoder).decode(await git_process.stderrOutput());
+            console.log(`The output is shown below (stderr):\n${stderr_output}`);
+            continue;
+        }
+        console.log("done!");
+    }
+}
+
+/**
  * Handle command line parameters and trigger the appropriate functions
  */
-function handle_cli() {
+async function handle_cli() {
     const args = Deno.args;
     if (args.length < 1) {
         print_help();
@@ -172,9 +210,10 @@ function handle_cli() {
         }
         case "fetch": {
             const dependencies = resolve_dependencies();
+            return await fetch_dependencies(dependencies);
         }
     }
     print_help();
 }
 
-handle_cli();
+await handle_cli();
