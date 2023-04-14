@@ -99,7 +99,7 @@ function get_project_name() {
 /**
  * Build executable from cargo project in CWD
  */
-function build_project(debug = true) {
+async function build_project(debug = true) {
     assert_is_cargo_instance();
     const cwd = Deno.cwd();
     const out_dir = `target/${debug ? "debug" : "release"}`;
@@ -115,7 +115,15 @@ function build_project(debug = true) {
     if (debug) {
         cmd.push("-g");
     }
-    Deno.run({cmd: cmd});
+    const cc_process = Deno.run({cmd: cmd});
+    const cc_status = await cc_process.status();
+    if (!cc_status.success) {
+        console.log(`Error while trying build executable`);
+        console.log(`The cc process returned with exit code ${cc_status.code}`);
+        const stderr_output = (new TextDecoder).decode(await cc_process.stderrOutput());
+        console.log(`The output is shown below (stderr):\n${stderr_output}`);
+        Deno.exit(1);
+    }
 }
 
 /**
@@ -217,7 +225,7 @@ async function handle_cli() {
             return new_cargo_dir(args[1]);
         case "build": {
             const release = ["-r", "--release"].includes(args[1]);
-            return build_project(!release);
+            return await build_project(!release);
         }
         case "fetch": {
             const dependencies = resolve_dependencies();
